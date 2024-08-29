@@ -8,6 +8,7 @@
 #define HW_PIPELINE
 
 
+// nvv4l2h264enc could re-order PTS during encoding
 // clang-format off
 const double PTS_list[] = {
   0,
@@ -26,6 +27,7 @@ const double PTS_list[] = {
   1.26,
   1.35,     //1.44,
   1.44,     //1.63,
+  // 1.53,     // with 1.53 here, issue remains actually 100% (1.35 1.53 1.44 1.63)
   1.63,     //1.72,
   1.72,     //1.35,
   1.81,
@@ -62,6 +64,7 @@ int main() {
 #ifdef HW_PIPELINE
         "nvvidconv ! "
         "video/x-raw(memory:NVMM) ! "
+        "identity sleep-time=5000 ! "
         "nvv4l2h264enc maxperf-enable=1 control-rate=0 bitrate=8000000 ! "
 #else
         "videoconvert ! "
@@ -126,6 +129,7 @@ int main() {
       // XXX if add some delay between pushing frames, then problem can not
       // be reproducedi
       // at least 16 milliseconds for this case
+      // actually even with this sleep, the PTS reordering is still possible (1.26 1.44 1.35 1.63)
       // std::this_thread::sleep_for(std::chrono::milliseconds{16});
     }
 
