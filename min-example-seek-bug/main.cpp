@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
 
   std::cout << "play file: " << argv[1] << std::endl;
   std::cout << "note that file should contain not less then 5 min of video "
-               "vp9, 1920x1080, 15fps"
+               "vp9/h264, 1920x1080, 15fps"
             << std::endl;
 
   std::string video_file = argv[1];
@@ -66,7 +66,10 @@ int main(int argc, char *argv[]) {
     std::string seek_pipeline =
         "filesrc location=" + video_file + " ! "
         "matroskademux name=demuxer demuxer.video_0 ! "
+        "h264parse ! "
+            "queue max-size-buffers=0 max-size-time=0 max-size-bytes=0 ! "
         "nvv4l2decoder ! "
+            "queue max-size-buffers=0 max-size-time=0 max-size-bytes=0 ! "
         "nvvidconv ! "
         "video/x-raw ! "
         "appsink name=sink emit-signals=true sync=false";
@@ -112,6 +115,8 @@ int main(int argc, char *argv[]) {
       gst_message_unref(msg);
 
       std::cout << "start seek" << std::endl;
+      // std::cout << "current frame: " << cur_frame <<  ", start seek to " << start_time / GST_SECOND << " seconds" << std::endl;
+      // auto seek_start = std::chrono::high_resolution_clock::now();
       // FIXME freezing here
       bool seek_result = gst_element_seek_simple(
           pipeline, GST_FORMAT_TIME, GST_SEEK_FLAG_FLUSH, start_time);
@@ -131,6 +136,18 @@ int main(int argc, char *argv[]) {
         assert(msg->type == GST_MESSAGE_ASYNC_DONE);
       }
       gst_message_unref(msg);
+
+      // auto seek_end = std::chrono::high_resolution_clock::now();
+      // auto seek_duration = std::chrono::duration_cast<std::chrono::milliseconds>(seek_end - seek_start);
+      // std::cout << "seek operation took " << seek_duration.count() << " ms" << std::endl;
+
+      // Query position after seek
+      // gint64 current_position;
+      // if (!gst_element_query_position(pipeline, GST_FORMAT_TIME, &current_position)) {
+      //     std::cerr << "Unable to query current position" << std::endl;
+      // } else {
+      //     std::cout << "Current position after seek: " << current_position / GST_SECOND << " seconds" << std::endl;
+      // }
 
       std::cout << "stop seek" << std::endl;
 
