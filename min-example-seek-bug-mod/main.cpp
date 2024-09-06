@@ -35,7 +35,9 @@ static GstPadProbeReturn probe_cb(GstPad *pad, GstPadProbeInfo *info,
 
   std::string tail_pipeline =
       "identity name=decoder ! "
-      "video/x-vp9, width=1920, height=1080, framerate=15/1 ! "
+      // "video/x-vp9, width=1920, height=1080, framerate=15/1 ! "
+      "h264parse ! "
+      "video/x-h264, width=1920, height=1080, framerate=15/1 ! "
       "nvv4l2decoder ! "
       "nvvidconv ! "
       "video/x-raw ! "

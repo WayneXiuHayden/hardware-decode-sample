@@ -66,10 +66,11 @@ int main(int argc, char *argv[]) {
     std::string seek_pipeline =
         "filesrc location=" + video_file + " ! "
         "matroskademux name=demuxer demuxer.video_0 ! "
+        "tee name=t ! "
+            "queue max-size-buffers=30 max-size-time=1000000000 max-size-bytes=0 ! "
         "h264parse ! "
-            "queue max-size-buffers=0 max-size-time=0 max-size-bytes=0 ! "
         "nvv4l2decoder ! "
-            "queue max-size-buffers=0 max-size-time=0 max-size-bytes=0 ! "
+            "queue max-size-buffers=30 max-size-time=1000000000 max-size-bytes=0 ! "
         "nvvidconv ! "
         "video/x-raw ! "
         "appsink name=sink emit-signals=true sync=false";
