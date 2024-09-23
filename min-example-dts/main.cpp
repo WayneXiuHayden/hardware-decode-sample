@@ -65,15 +65,16 @@ int main() {
         "nvvidconv ! "
         "video/x-raw(memory:NVMM) ! "
         "identity sleep-time=5000 ! "
-        "nvv4l2h264enc maxperf-enable=1 control-rate=0 bitrate=8000000 ! "
+        // "nvv4l2h264enc maxperf-enable=1 control-rate=0 bitrate=8000000 ! "
+        "nvv4l2vp9enc maxperf-enable=1 control-rate=0 bitrate=8000000 ! "
+        "video/x-vp9, stream-format=byte-stream ! "
 #else
         "videoconvert ! "
-        // "video/x-raw, format=I420 ! "
-        // "x264enc ! "
-        "x264enc tune=zerolatency speed-preset=ultrafast ! "
+        // "x264enc tune=zerolatency speed-preset=ultrafast ! "
+        "vp9enc ! "
 #endif
-        "video/x-h264, profile=baseline ! "
-        "h264parse ! "
+        // "video/x-h264, profile=baseline ! "
+        // "h264parse ! "
         "identity silent=FALSE ! "
         "matroskamux ! "
         "filesink sync=FALSE location=video.mkv",
@@ -149,9 +150,10 @@ int main() {
   GstElement *pipeline =
       gst_parse_launch("filesrc location=video.mkv ! "
                        "matroskademux ! "
-                       "h264parse ! "
+                      //  "h264parse ! "
                       //  "nvv4l2decoder ! "
-                       "avdec_h264 ! "
+                      //  "avdec_h264 ! "
+                       "vp9dec ! "
                        "videoconvert ! "
                        "appsink name=appsink max-buffers=5 sync=FALSE",
                        &err);

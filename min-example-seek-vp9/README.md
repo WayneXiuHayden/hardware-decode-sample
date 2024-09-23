@@ -1,0 +1,1 @@
+nvidia gst decoder plugin supports vp9 profile 0 only; it will have problem seeking if profile is not 0
